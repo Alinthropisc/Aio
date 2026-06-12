@@ -1,0 +1,7 @@
+{
+  "extends": "@aio/config/tsconfig",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}
