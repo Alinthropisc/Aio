@@ -3,14 +3,17 @@ name: CI — aiofront
 on:
   push:
     paths:
-      - 'aiofront/**'
-      - 'packages/**'
-      - '.github/workflows/aiofront.yml'
+      - "aiofront/**"
+      - "packages/**"
+      - ".github/workflows/aiofront.yml"
   pull_request:
     paths:
-      - 'aiofront/**'
-      - 'packages/**'
-      - '.github/workflows/aiofront.yml'
+      - "aiofront/**"
+      - "packages/**"
+      - ".github/workflows/aiofront.yml"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   test:
@@ -18,28 +21,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
         with:
-          version: 9
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Lint
-        run: pnpm --filter aiofront lint
+        run: npm run lint --workspace=aiofront --if-present
 
       - name: Test
-        run: pnpm --filter aiofront test
+        run: npm run test --workspace=aiofront --if-present
 
       - name: Build
-        run: pnpm --filter aiofront build
+        run: npm run build --workspace=aiofront --if-present

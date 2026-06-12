@@ -1,7 +1,9 @@
 """Tests for core/events/bus.py — EventBus."""
-import pytest
 from dataclasses import dataclass
-from core.events.bus import EventBus, BaseEvent
+
+import pytest
+
+from core.events.bus import BaseEvent, EventBus
 
 
 @dataclass

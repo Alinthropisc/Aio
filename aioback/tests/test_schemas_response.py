@@ -1,7 +1,6 @@
 """Tests for schemas/response.py — SuccessResponse, ErrorResponse, PaginatedResponse."""
-import pytest
-from schemas.response import SuccessResponse, ErrorResponse, ErrorDetail, PaginatedResponse
 from repositories.base import Page
+from schemas.response import ErrorDetail, ErrorResponse, PaginatedResponse, SuccessResponse
 
 
 class TestSuccessResponse:

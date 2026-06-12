@@ -1,5 +1,6 @@
 """Tests for core/security/hasher.py — PasswordHasher."""
 import pytest
+
 from core.security.hasher import PasswordHasher
 
 
@@ -21,7 +22,7 @@ class TestPasswordHasher:
     def test_hash_is_different_each_time(self, hasher):
         h1 = hasher.hash("secret123")
         h2 = hasher.hash("secret123")
-        assert h1 != h2  # bcrypt uses random salt
+        assert h1 != h2
 
     def test_verify_correct_password(self, hasher):
         hashed = hasher.hash("mypassword")

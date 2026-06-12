@@ -3,14 +3,17 @@ name: CI — aiomini
 on:
   push:
     paths:
-      - 'aiomini/**'
-      - 'packages/**'
-      - '.github/workflows/aiomini.yml'
+      - "aiomini/**"
+      - "packages/**"
+      - ".github/workflows/aiomini.yml"
   pull_request:
     paths:
-      - 'aiomini/**'
-      - 'packages/**'
-      - '.github/workflows/aiomini.yml'
+      - "aiomini/**"
+      - "packages/**"
+      - ".github/workflows/aiomini.yml"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   test:
@@ -18,28 +21,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          version: 9
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Lint
-        run: pnpm --filter aiomini lint
+        run: npm run lint --workspace=aiomini --if-present
 
       - name: Test
-        run: pnpm --filter aiomini exec vitest run
+        run: npm run test --workspace=aiomini --if-present
 
       - name: Build
-        run: pnpm --filter aiomini build
+        run: npm run build --workspace=aiomini --if-present
