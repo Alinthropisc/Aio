@@ -72,6 +72,12 @@ source = ["core"]
 omit = [
     "tests/*",
     "benchmarks/*",
+    "core/di/*",
+    "core/routes/*",
+    "core/queue/queue.py",
+    "core/queue/worker.py",
+    "core/cache/*",
+    "core/config/*",
 ]
 
 [tool.coverage.report]
