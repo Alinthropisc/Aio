@@ -1,0 +1,22 @@
+{
+  "app": { "name": "Aioback", "welcome": "Welcome to {name}!" },
+  "auth": {
+    "login": { "success": "Logged in successfully", "failed": "Invalid credentials", "required": "Authentication required" },
+    "logout": { "success": "Logged out successfully" },
+    "forbidden": "Access denied"
+  },
+  "errors": {
+    "not_found": "{entity} not found",
+    "already_exists": "{entity} already exists",
+    "validation": "Validation error",
+    "server": "Internal server error",
+    "bad_request": "Bad request"
+  },
+  "pagination": { "info": "Page {page} of {pages}, total: {total}" },
+  "bot": {
+    "start": "Hello, {name}! I am ready to help.",
+    "help": "Available commands:\n/start — start\n/help — help",
+    "unknown": "Unknown command. Use /help.",
+    "error": "Something went wrong. Please try again."
+  }
+}

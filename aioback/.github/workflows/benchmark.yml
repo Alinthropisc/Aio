@@ -1,0 +1,92 @@
+name: Benchmark
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    name: Granian Benchmark
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: aioback_bench
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_HOST: localhost
+      DB_NAME: aioback_bench
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      REDIS_HOST: localhost
+      BOT_TOKEN: "0000000000:bench_token"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Apply migrations
+        run: uv run alembic upgrade head
+
+      - name: Start server
+        run: |
+          uv run granian --interface rsgi main:app --host 0.0.0.0 --port 8000 &
+          sleep 3
+
+      - name: Install wrk
+        run: sudo apt-get install -y wrk
+
+      - name: Run benchmark
+        run: |
+          echo "=== Warmup ==="
+          wrk -t2 -c10 -d5s http://localhost:8000/health || true
+
+          echo "=== Benchmark ==="
+          wrk -t4 -c100 -d30s --latency http://localhost:8000/health || true
+
+      - name: Save results
+        run: |
+          wrk -t4 -c100 -d30s --latency http://localhost:8000/health 2>&1 | tee benchmark-results.txt || true
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark-results.txt
+        if: always()

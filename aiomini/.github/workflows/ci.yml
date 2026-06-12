@@ -1,0 +1,21 @@
+name: aiomini CI
+
+on:
+  push:
+    paths: ["aiomini/**", "packages/**"]
+  pull_request:
+    paths: ["aiomini/**", "packages/**"]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck --workspace=aiomini
+      - run: npm run test --workspace=aiomini
+      - run: npm run build --workspace=aiomini

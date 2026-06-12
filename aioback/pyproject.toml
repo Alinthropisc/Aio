@@ -1,0 +1,121 @@
+[project]
+name = "aioback"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiodns>=4.0.4",
+    "aiofiles>=25.1.0",
+    "aiogram>=3.28.2",
+    "aiohttp>=3.13.5",
+    "aiomysql>=0.3.2",
+    "alembic>=1.18.4",
+    "bcrypt>=5.0.0",
+    "cryptography>=48.0.1",
+    "dishka>=1.10.1",
+    "granian>=2.7.6",
+    "litestar[standard]>=2.24.0",
+    "loguru>=0.7.3",
+    "psycopg[binary,pool]>=3.3.4",
+    "pycasbin>=2.8.0",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.1",
+    "redis[hiredis]>=8.0.0",
+    "typer>=0.26.7",
+]
+
+[dependency-groups]
+dev = [
+    "coverage[toml]>=7.14.1",
+    "faker>=40.23.0",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "pytest-mock>=3.15.1",
+    "pytest-timeout>=2.4.0",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.15.17",
+]
+
+
+
+[build-system]
+requires = ["hatchling>=1.29.0"]
+build-backend = "hatchling.build"
+
+# ── Hatch — tell it where the package lives ───────────────
+[tool.hatch.build.targets.wheel]
+packages = ["core"]
+
+# ── Pytest ────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow",
+    "integration: integration tests",
+    "database: database tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "-q",
+]
+
+# ── Coverage ──────────────────────────────────────────────
+[tool.coverage.run]
+source = ["core"]
+omit = [
+    "tests/*",
+    "benchmarks/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.",
+    "raise NotImplementedError",
+    "pass",
+    "\\.\\.\\.",
+]
+show_missing = true
+fail_under = 80
+
+# ── Ruff ──────────────────────────────────────────────────
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+ignore = [
+    "S101",
+    "S104",
+    "B008",
+    "E501",
+    # Project ships Russian comments/docstrings — Cyrillic looks "ambiguous" to ruff.
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    # Framework base classes use mutable class-level defaults ([] / {}) by design.
+    "RUF012",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S106", "T20"]
+# Tests may use loose style: ambiguous names, late imports, explicit if/else.
+"core/testing/**" = ["S101", "S106", "T20", "E741", "E402", "RUF034"]
+"benchmarks/**" = ["T20"]
+"config/**" = ["F401", "E501", "UP035"]
+"core/registry/manager.py" = ["T20"]
+# Optional lifecycle hooks are intentionally empty (not abstract).
+"core/console/command.py" = ["B027"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core"]

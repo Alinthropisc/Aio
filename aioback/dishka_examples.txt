@@ -1,0 +1,259 @@
+dishka/examples/integrations/aiohttp_app.py
+
+
+from typing import Protocol
+
+from aiohttp.web import run_app
+from aiohttp.web_app import Application
+from aiohttp.web_response import Response
+from aiohttp.web_routedef import RouteTableDef
+from dishka import (
+    Provider,
+    Scope,
+    make_async_container,
+    provide,
+)
+from dishka.integrations.aiohttp import (
+    DISHKA_CONTAINER_KEY,
+    AiohttpProvider,
+    FromDishka,
+    inject,
+    setup_dishka,
+)
+
+
+class Gateway(Protocol):
+    async def get(self) -> int: ...
+
+
+class MockGateway(Gateway):
+    async def get(self) -> int:
+        return hash(self)
+
+
+class GatewayProvider(Provider):
+    get_gateway = provide(MockGateway, scope=Scope.REQUEST, provides=Gateway)
+
+
+router = RouteTableDef()
+
+
+@router.get("/")
+@inject
+async def endpoint(
+        request: str, gateway: FromDishka[Gateway],
+) -> Response:
+    data = await gateway.get()
+    return Response(text=f"gateway data: {data}")
+
+
+async def on_shutdown(app: Application) -> None:
+    await app[DISHKA_CONTAINER_KEY].close()
+
+
+app = Application()
+app.add_routes(router)
+
+container = make_async_container(GatewayProvider(), AiohttpProvider())
+setup_dishka(container=container, app=app)
+app.on_shutdown.append(on_shutdown)
+run_app(app)
+
+
+dishka/examples/integrations/aiogram_bot.py
+
+import asyncio
+import logging
+import os
+import random
+from collections.abc import AsyncIterator
+
+from aiogram import Bot, Dispatcher, Router
+from aiogram.types import Chat, Message, TelegramObject, User
+from dishka import Provider, Scope, make_async_container, provide
+from dishka.integrations.aiogram import (
+    AiogramMiddlewareData,
+    AiogramProvider,
+    FromDishka,
+    inject,
+    setup_dishka,
+)
+
+
+# app dependency logic
+class MyProvider(Provider):
+    @provide(scope=Scope.APP)
+    async def get_int(self) -> AsyncIterator[int]:
+        print("solve int")
+        yield random.randint(0, 10000)
+
+    @provide(scope=Scope.REQUEST)
+    async def get_user(self, obj: TelegramObject) -> User:
+        return obj.from_user
+
+    @provide(scope=Scope.REQUEST)
+    async def get_chat(
+            self,
+            middleware_data: AiogramMiddlewareData,
+    ) -> Chat | None:
+        return middleware_data.get("event_chat")
+
+
+# app
+API_TOKEN = os.getenv("BOT_TOKEN")
+router = Router()
+
+
+@router.message()
+@inject  # if auto_inject=True is specified in the setup_dishka, then you do not need to specify a decorator  # noqa: E501
+async def start(
+    message: Message,
+    user: FromDishka[User],
+    value: FromDishka[int],
+    chat: FromDishka[Chat | None],
+) -> None:
+    chat_name = chat.username if chat else None
+    await message.answer(f"Hello, {value}, {chat_name}, {user.full_name}!")
+
+
+async def main() -> None:
+    # real main
+    logging.basicConfig(level=logging.INFO)
+    bot = Bot(token=API_TOKEN)
+    dp = Dispatcher()
+    dp.include_router(router)
+
+    container = make_async_container(
+        MyProvider(),
+        AiogramProvider(),
+    )
+    setup_dishka(container=container, router=dp)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await container.close()
+        await bot.session.close()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+dishka/examples/integrations/litestar_app.py
+
+import logging
+from abc import abstractmethod
+from typing import Protocol
+
+import uvicorn
+from dishka import Provider, Scope, make_async_container, provide
+from dishka.integrations.base import FromDishka
+from dishka.integrations.litestar import LitestarProvider, inject, setup_dishka
+from litestar import Controller, Litestar, get
+
+
+# app core
+class DbGateway(Protocol):
+    @abstractmethod
+    def get(self) -> str:
+        raise NotImplementedError
+
+
+class FakeDbGateway(DbGateway):
+    def get(self) -> str:
+        return "Hello123"
+
+
+class Interactor:
+    def __init__(self, db: DbGateway) -> None:
+        self.db = db
+
+    def __call__(self) -> str:
+        return self.db.get()
+
+
+# app dependency logic
+class AdaptersProvider(Provider):
+    @provide(scope=Scope.REQUEST)
+    def get_db(self) -> DbGateway:
+        return FakeDbGateway()
+
+
+class InteractorProvider(Provider):
+    i1 = provide(Interactor, scope=Scope.REQUEST)
+
+
+class MainController(Controller):
+    path = "/"
+
+    @get()
+    @inject
+    async def index(
+            self, *, interactor: FromDishka[Interactor],
+    ) -> str:
+        return interactor()
+
+
+def create_app() -> Litestar:
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(asctime)s  %(process)-7s %(module)-20s %(message)s",
+    )
+    app = Litestar(route_handlers=[MainController])
+    container = make_async_container(
+        InteractorProvider(),
+        AdaptersProvider(),
+        LitestarProvider(),
+    )
+    setup_dishka(container, app)
+    return app
+
+
+if __name__ == "__main__":
+    uvicorn.run(create_app(), host="0.0.0.0", port=8000)
+
+dishka/examples/integrations/taskiq_app.py
+
+import asyncio
+import random
+
+from dishka import FromDishka, Provider, Scope, make_async_container
+from dishka.integrations.taskiq import TaskiqProvider, inject, setup_dishka
+from taskiq import AsyncTaskiqTask, InMemoryBroker
+
+provider = Provider(scope=Scope.REQUEST)
+provider.provide(lambda: random.random(), provides=float)
+
+broker = InMemoryBroker()
+
+
+@broker.task
+@inject
+async def random_task(num: FromDishka[float]) -> float:
+    raise ValueError
+
+
+async def main() -> None:
+    container = make_async_container(provider, TaskiqProvider())
+    setup_dishka(container, broker)
+    await broker.startup()
+
+    task: AsyncTaskiqTask[float] = await random_task.kiq()
+    result = await task.wait_result()
+    print(result.return_value)
+
+    await broker.shutdown()
+    await container.close()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+
+
+
+
+
+
+
+
+
