@@ -1,7 +1,7 @@
 import pytest
+from litestar.exceptions import NotAuthorizedException
 
 from core.auth.gate import Gate
-from litestar.exceptions import NotAuthorizedException
 
 
 class FakeUser:

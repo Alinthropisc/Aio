@@ -1,7 +1,7 @@
 import pytest
+from litestar.exceptions import NotAuthorizedException
 
 from core.auth.policy import BasePolicy, PolicyRegistry
-from litestar.exceptions import NotAuthorizedException
 
 
 class PostPolicy(BasePolicy):

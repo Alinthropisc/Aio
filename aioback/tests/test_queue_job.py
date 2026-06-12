@@ -1,6 +1,4 @@
-from dataclasses import dataclass, field
-
-import pytest
+from dataclasses import dataclass
 
 from core.queue.job import BaseJob, JobStatus
 
@@ -18,10 +16,10 @@ class FailingJob(BaseJob):
     async def handle(self) -> None:
         raise RuntimeError("intentional failure")
 
-    async def failed(self, exc: Exception) -> None:  # noqa: B027
+    async def failed(self, exc: Exception) -> None:
         pass
 
-    async def on_retry(self, attempt: int, exc: Exception) -> None:  # noqa: B027
+    async def on_retry(self, attempt: int, exc: Exception) -> None:
         pass
 
 
