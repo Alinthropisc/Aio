@@ -10,6 +10,7 @@ from core.logging import Log
 @dataclass
 class BaseEvent:
     """Базовый класс для всех событий приложения."""
+
     name: str = field(init=False)
 
     def __post_init__(self) -> None:
@@ -49,9 +50,11 @@ class EventBus:
 
     def on(self, event_class: type[BaseEvent]):
         """Декоратор подписки на событие."""
+
         def decorator(fn: ListenerFn) -> ListenerFn:
             self.listen(event_class, fn)
             return fn
+
         return decorator
 
     def forget(self, event_class: type[BaseEvent], listener: ListenerFn | None = None) -> None:

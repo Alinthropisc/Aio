@@ -7,11 +7,11 @@ from typing import Any
 
 
 class JobStatus(StrEnum):
-    PENDING   = "pending"
-    RUNNING   = "running"
-    DONE      = "done"
-    FAILED    = "failed"
-    RETRYING  = "retrying"
+    PENDING = "pending"
+    RUNNING = "running"
+    DONE = "done"
+    FAILED = "failed"
+    RETRYING = "retrying"
 
 
 @dataclass
@@ -35,9 +35,9 @@ class BaseJob(ABC):
     # ── Настройки job (переопредели в дочернем классе) ────────────────────────
     queue: str = "default"
     max_retries: int = 3
-    retry_delay: int = 5       # секунды между попытками
-    timeout: int = 300         # максимальное время выполнения
-    priority: int = 0          # выше = важнее
+    retry_delay: int = 5  # секунды между попытками
+    timeout: int = 300  # максимальное время выполнения
+    priority: int = 0  # выше = важнее
 
     # ── Автоматические поля ───────────────────────────────────────────────────
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
@@ -71,11 +71,22 @@ class BaseJob(ABC):
             "created_at": self.created_at.isoformat(),
             "scheduled_at": self.scheduled_at.isoformat() if self.scheduled_at else None,
             "payload": {
-                k: v for k, v in self.__dict__.items()
-                if k not in {
-                    "id", "class", "queue", "max_retries", "retry_delay",
-                    "timeout", "priority", "attempts", "status",
-                    "created_at", "scheduled_at", "error",
+                k: v
+                for k, v in self.__dict__.items()
+                if k
+                not in {
+                    "id",
+                    "class",
+                    "queue",
+                    "max_retries",
+                    "retry_delay",
+                    "timeout",
+                    "priority",
+                    "attempts",
+                    "status",
+                    "created_at",
+                    "scheduled_at",
+                    "error",
                 }
             },
         }
@@ -84,6 +95,7 @@ class BaseJob(ABC):
     @classmethod
     def deserialize(cls, data: dict[str, Any]) -> "BaseJob":
         import importlib
+
         module_path, class_name = data["class"].rsplit(".", 1)
         module = importlib.import_module(module_path)
         klass = getattr(module, class_name)

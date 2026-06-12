@@ -73,6 +73,7 @@ class PolicyRegistry:
 
     async def authorize(self, name: str, action: str, user: Any, *args: Any) -> None:
         from litestar.exceptions import NotAuthorizedException
+
         if not await self.allows(name, action, user, *args):
             self._log.warning(f"Policy denied: {name}.{action} user={getattr(user, 'id', '?')}")
             raise NotAuthorizedException(detail=f"Access denied: {name}.{action}")

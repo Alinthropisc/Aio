@@ -13,6 +13,7 @@ from repositories.base import Page
 @dataclass
 class PaginatedResponse:
     """Стандартный ответ с пагинацией."""
+
     items: list[Any]
     total: int
     limit: int

@@ -1,4 +1,5 @@
 """Tests for schemas/response.py — SuccessResponse, ErrorResponse, PaginatedResponse."""
+
 from repositories.base import Page
 from schemas.response import ErrorDetail, ErrorResponse, PaginatedResponse, SuccessResponse
 

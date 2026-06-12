@@ -56,6 +56,7 @@ class Gate:
 
     async def _run(self, check: GateCheck, *args: Any) -> bool:
         import asyncio
+
         result = check(*args)
         if asyncio.iscoroutine(result):
             return await result
@@ -105,6 +106,7 @@ class Gate:
     async def check_policy(self, policy: BasePolicy, action: str, user: Any, *args: Any) -> bool:
         """Делегирует проверку в Policy класс."""
         import asyncio
+
         handler = getattr(policy, action, None)
         if handler is None:
             return False

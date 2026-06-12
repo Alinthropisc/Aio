@@ -16,6 +16,7 @@ class SuccessResponse(BaseSchema, Generic[T]):
         "data": { ... }
     }
     """
+
     success: bool = True
     data: T | None = None
 
@@ -40,6 +41,7 @@ class ErrorResponse(BaseSchema):
         "errors": [{ "field": "email", "message": "Invalid email" }]
     }
     """
+
     success: bool = False
     code: str = "ERROR"
     message: str
@@ -68,6 +70,7 @@ class PaginatedResponse(BaseSchema, Generic[T]):
         "pages": 5
     }
     """
+
     items: list[T]
     total: int
     limit: int
@@ -78,10 +81,7 @@ class PaginatedResponse(BaseSchema, Generic[T]):
 
     @classmethod
     def of(cls, page, serializer: type[T] | None = None) -> "PaginatedResponse[T]":
-        items = (
-            [serializer.model_validate(i) for i in page.items]
-            if serializer else list(page.items)
-        )
+        items = [serializer.model_validate(i) for i in page.items] if serializer else list(page.items)
         return cls(
             items=items,
             total=page.total,

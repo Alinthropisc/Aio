@@ -10,6 +10,7 @@ class LogJob(BaseJob):
     Пример job — просто логирует сообщение.
     Используй как шаблон для своих задач.
     """
+
     queue: str = "default"
     max_retries: int = 1
     message: str = ""

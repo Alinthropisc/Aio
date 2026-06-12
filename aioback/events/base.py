@@ -8,6 +8,7 @@ from core.events.bus import BaseEvent
 @dataclass
 class ModelEvent(BaseEvent):
     """Базовое событие модели."""
+
     instance: Any = None
     occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -20,6 +21,7 @@ class ModelCreatedEvent(ModelEvent):
 @dataclass
 class ModelUpdatedEvent(ModelEvent):
     """Вызывается после обновления любой записи."""
+
     changed_fields: list[str] = field(default_factory=list)
 
 

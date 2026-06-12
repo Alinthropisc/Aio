@@ -16,13 +16,11 @@ _FMT_CONSOLE = (
     "<level>{message}</level>"
     "{exception}"
 )
-_FMT_FILE = (
-    "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | "
-    "{name}:{line} | {message} | {extra}"
-)
+_FMT_FILE = "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{line} | {message} | {extra}"
 
 
 # ── Singleton конфигуратор ────────────────────────────────────────────────────
+
 
 class _LoggingConfigurator:
     _configured: bool = False
@@ -80,6 +78,7 @@ class _LoggingConfigurator:
             )
 
         import warnings
+
         warnings.showwarning = _warn_to_loguru
         sys.excepthook = _excepthook
 
@@ -91,6 +90,7 @@ _configurator = _LoggingConfigurator()
 
 
 # ── Decorator паттерн ─────────────────────────────────────────────────────────
+
 
 def log_call(
     level: str = "DEBUG",
@@ -148,11 +148,14 @@ def log_call(
                 raise
 
         import asyncio
+
         return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+
     return decorator
 
 
 # ── Context Object паттерн ────────────────────────────────────────────────────
+
 
 class RequestLogger:
     """
@@ -174,15 +177,14 @@ class RequestLogger:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         elapsed = (time.perf_counter() - self._start) * 1000
         if exc_type:
-            self._log.error(
-                f"✗ {self._method} {self._path} | {elapsed:.1f}ms | {exc_type.__name__}: {exc_val}"
-            )
+            self._log.error(f"✗ {self._method} {self._path} | {elapsed:.1f}ms | {exc_type.__name__}: {exc_val}")
         else:
             self._log.info(f"← {self._method} {self._path} | {elapsed:.1f}ms")
         return False
 
 
 # ── Перехватчики ──────────────────────────────────────────────────────────────
+
 
 def _warn_to_loguru(message, category, filename, lineno, file=None, line=None):
     logger.warning(f"{category.__name__}: {message} ({filename}:{lineno})")
@@ -192,12 +194,11 @@ def _excepthook(exc_type, exc_value, exc_tb):
     if issubclass(exc_type, KeyboardInterrupt):
         sys.__excepthook__(exc_type, exc_value, exc_tb)
         return
-    logger.opt(exception=(exc_type, exc_value, exc_tb)).critical(
-        f"Uncaught exception: {exc_type.__name__}"
-    )
+    logger.opt(exception=(exc_type, exc_value, exc_tb)).critical(f"Uncaught exception: {exc_type.__name__}")
 
 
 # ── Facade паттерн — единая точка входа ──────────────────────────────────────
+
 
 class Log:
     """
@@ -311,6 +312,7 @@ class Log:
 
 
 # ── Публичные функции для обратной совместимости ──────────────────────────────
+
 
 def configure_logging(debug: bool = False, env: str = "development") -> None:
     Log.setup(debug=debug, env=env)

@@ -3,23 +3,27 @@ from pathlib import Path
 
 import typer
 
-app      = typer.Typer(name="aioback", help="Aioback CLI", no_args_is_help=True)
-db_app   = typer.Typer(help="Database commands")
+app = typer.Typer(name="aioback", help="Aioback CLI", no_args_is_help=True)
+db_app = typer.Typer(help="Database commands")
 make_app = typer.Typer(help="Code generators")
 
-app.add_typer(db_app,   name="db")
+app.add_typer(db_app, name="db")
 app.add_typer(make_app, name="make")
 
 
 # ── DB ────────────────────────────────────────────────────────────────────────
 
+
 @db_app.command("migrate")
 def db_migrate(revision: str = typer.Argument("head")) -> None:
     """Apply migrations."""
     import subprocess
+
     typer.echo(f"Migrating → {revision}")
     r = subprocess.run(["alembic", "upgrade", revision], check=False)
-    typer.secho("Done!" if r.returncode == 0 else "Failed!", fg=typer.colors.GREEN if r.returncode == 0 else typer.colors.RED)
+    typer.secho(
+        "Done!" if r.returncode == 0 else "Failed!", fg=typer.colors.GREEN if r.returncode == 0 else typer.colors.RED
+    )
     if r.returncode != 0:
         raise typer.Exit(1)
 
@@ -28,6 +32,7 @@ def db_migrate(revision: str = typer.Argument("head")) -> None:
 def db_rollback(steps: int = typer.Option(1, "--steps", "-s")) -> None:
     """Rollback migrations."""
     import subprocess
+
     subprocess.run(["alembic", "downgrade", f"-{steps}"], check=True)
     typer.secho(f"Rolled back {steps} step(s)", fg=typer.colors.YELLOW)
 
@@ -39,6 +44,7 @@ def db_revision(
 ) -> None:
     """Create migration."""
     import subprocess
+
     cmd = ["alembic", "revision", "-m", message]
     if autogenerate:
         cmd.append("--autogenerate")
@@ -50,15 +56,18 @@ def db_revision(
 def db_status() -> None:
     """Show current revision."""
     import subprocess
+
     subprocess.run(["alembic", "current"], check=True)
 
 
 @db_app.command("seed")
 def db_seed(seeder: str = typer.Argument("all")) -> None:
     """Run database seeders."""
+
     async def _run():
         from config import get_settings
         from core.db import create_engine, get_session, session_factory
+
         settings = get_settings()
         engine = create_engine(url=settings.db.url)
         factory = session_factory(engine)
@@ -68,10 +77,12 @@ def db_seed(seeder: str = typer.Argument("all")) -> None:
             # await UserSeeder().run(session)
             typer.secho("Seeding done!", fg=typer.colors.GREEN)
         await engine.dispose()
+
     asyncio.run(_run())
 
 
 # ── Worker ────────────────────────────────────────────────────────────────────
+
 
 @app.command("worker")
 def run_worker(
@@ -79,11 +90,13 @@ def run_worker(
     concurrency: int = typer.Option(3, "--concurrency", "-c"),
 ) -> None:
     """Start queue worker."""
+
     async def _run():
         from config import get_settings
         from core.cache import RedisClient
         from core.logging import Log
         from core.queue import Queue, Worker
+
         settings = get_settings()
         Log.setup(debug=settings.app.is_debug, env=settings.app.env)
         redis = RedisClient(url=settings.redis.url, max_connections=10, decode_responses=False)
@@ -94,15 +107,18 @@ def run_worker(
             await worker.run()
         finally:
             await redis.close()
+
     asyncio.run(_run())
 
 
 # ── Info ──────────────────────────────────────────────────────────────────────
 
+
 @app.command("info")
 def info() -> None:
     """Show project info."""
     from config import get_settings
+
     s = get_settings()
     typer.echo(f"App:   {s.app.name} v{s.app.version}")
     typer.echo(f"Env:   {s.app.env}  Debug: {s.app.debug}")
@@ -111,6 +127,7 @@ def info() -> None:
 
 
 # ── Make generators ───────────────────────────────────────────────────────────
+
 
 def _write(path: str, content: str, label: str) -> None:
     full = Path(path)
@@ -125,7 +142,9 @@ def _write(path: str, content: str, label: str) -> None:
 @make_app.command("model")
 def make_model(name: str = typer.Argument(...)) -> None:
     """Generate SQLAlchemy model."""
-    _write(f"app/models/{name.lower()}.py", f'''from sqlalchemy.orm import Mapped, mapped_column
+    _write(
+        f"app/models/{name.lower()}.py",
+        f'''from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 from core.db import BaseModel
 
@@ -134,38 +153,50 @@ class {name}(BaseModel):
     __tablename__ = "{name.lower()}s"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-''', f"Model {name}")
+''',
+        f"Model {name}",
+    )
 
 
 @make_app.command("service")
 def make_service(name: str = typer.Argument(...)) -> None:
     """Generate service class."""
-    _write(f"services/{name.lower()}.py", f'''from services import BaseService
+    _write(
+        f"services/{name.lower()}.py",
+        f"""from services import BaseService
 from app.models.{name.lower()} import {name}
 from repositories.{name.lower()} import {name}Repository
 
 
 class {name}Service(BaseService[{name}, {name}Repository]):
     pass
-''', f"Service {name}Service")
+""",
+        f"Service {name}Service",
+    )
 
 
 @make_app.command("repository")
 def make_repository(name: str = typer.Argument(...)) -> None:
     """Generate repository class."""
-    _write(f"repositories/{name.lower()}.py", f'''from repositories import BaseRepository
+    _write(
+        f"repositories/{name.lower()}.py",
+        f"""from repositories import BaseRepository
 from app.models.{name.lower()} import {name}
 
 
 class {name}Repository(BaseRepository[{name}]):
     model = {name}
-''', f"Repository {name}Repository")
+""",
+        f"Repository {name}Repository",
+    )
 
 
 @make_app.command("controller")
 def make_controller(name: str = typer.Argument(...)) -> None:
     """Generate Litestar controller."""
-    _write(f"app/controllers/{name.lower()}.py", f'''from dishka.integrations.litestar import FromDishka, inject
+    _write(
+        f"app/controllers/{name.lower()}.py",
+        f"""from dishka.integrations.litestar import FromDishka, inject
 from litestar import get, post, delete
 
 from app.controllers import BaseWebController
@@ -179,13 +210,17 @@ class {name}Controller(BaseWebController):
     @inject
     async def index(self, service: FromDishka[{name}Service]) -> list:
         return await service.get_all()
-''', f"Controller {name}Controller")
+""",
+        f"Controller {name}Controller",
+    )
 
 
 @make_app.command("job")
 def make_job(name: str = typer.Argument(...)) -> None:
     """Generate Job class."""
-    _write(f"jobs/{name.lower()}.py", f'''from dataclasses import dataclass
+    _write(
+        f"jobs/{name.lower()}.py",
+        f'''from dataclasses import dataclass
 from core.queue import BaseJob
 from core.logging import Log
 
@@ -200,13 +235,17 @@ class {name}Job(BaseJob):
 
     async def failed(self, exc: Exception) -> None:
         Log.error(f"{name}Job permanently failed: {{exc}}")
-''', f"Job {name}Job")
+''',
+        f"Job {name}Job",
+    )
 
 
 @make_app.command("observer")
 def make_observer(name: str = typer.Argument(...)) -> None:
     """Generate Observer class."""
-    _write(f"observers/{name.lower()}.py", f'''from core.events.observer import ModelObserver
+    _write(
+        f"observers/{name.lower()}.py",
+        f'''from core.events.observer import ModelObserver
 from core.logging import Log
 
 
@@ -219,20 +258,26 @@ class {name}Observer(ModelObserver):
 
     async def deleted(self, instance) -> None:
         Log.info(f"{name} deleted: {{instance.id}}")
-''', f"Observer {name}Observer")
+''',
+        f"Observer {name}Observer",
+    )
 
 
 @make_app.command("listener")
 def make_listener(name: str = typer.Argument(...)) -> None:
     """Generate Listener class."""
-    _write(f"listeners/{name.lower()}.py", f'''from core.events.bus import BaseEvent
+    _write(
+        f"listeners/{name.lower()}.py",
+        f"""from core.events.bus import BaseEvent
 from listeners.base import BaseListener
 
 
 class {name}Listener(BaseListener):
     async def handle(self, event: BaseEvent) -> None:
         self._log.info(f"Handling {{event.name}}")
-''', f"Listener {name}Listener")
+""",
+        f"Listener {name}Listener",
+    )
 
 
 if __name__ == "__main__":

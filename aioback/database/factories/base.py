@@ -58,9 +58,7 @@ class BaseFactory(ABC, Generic[Model]):
         await session.refresh(instance)
         return instance
 
-    async def create_batch(
-        self, session: AsyncSession, count: int = 5, **overrides: Any
-    ) -> list[Model]:
+    async def create_batch(self, session: AsyncSession, count: int = 5, **overrides: Any) -> list[Model]:
         """Создаёт и сохраняет несколько объектов в БД."""
         instances = [self.make(**overrides) for _ in range(count)]
         session.add_all(instances)

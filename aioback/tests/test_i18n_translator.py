@@ -1,4 +1,5 @@
 """Tests for i18n/translator.py — Translator, t(), set_locale()."""
+
 import pytest
 
 from i18n.translator import Translator, get_locale, set_locale, t

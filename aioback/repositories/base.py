@@ -85,9 +85,7 @@ class BaseRepository(Generic[Model]):
     # ── Read ──────────────────────────────────────────────────────────────────
 
     async def get_by_id(self, id: uuid.UUID | int) -> Model | None:
-        result = await self._session.execute(
-            self._base_select().where(self.model.id == id)
-        )
+        result = await self._session.execute(self._base_select().where(self.model.id == id))
         return result.scalars().first()
 
     async def get_by_id_or_raise(self, id: uuid.UUID | int) -> Model:
@@ -97,21 +95,15 @@ class BaseRepository(Generic[Model]):
         return instance
 
     async def get_by(self, **filters: Any) -> Model | None:
-        result = await self._session.execute(
-            self._base_select().filter_by(**filters)
-        )
+        result = await self._session.execute(self._base_select().filter_by(**filters))
         return result.scalars().first()
 
     async def get_all(self, limit: int = 100, offset: int = 0) -> Sequence[Model]:
-        result = await self._session.execute(
-            self._base_select().limit(limit).offset(offset)
-        )
+        result = await self._session.execute(self._base_select().limit(limit).offset(offset))
         return result.scalars().all()
 
     async def filter_by(self, **filters: Any) -> Sequence[Model]:
-        result = await self._session.execute(
-            self._base_select().filter_by(**filters)
-        )
+        result = await self._session.execute(self._base_select().filter_by(**filters))
         return result.scalars().all()
 
     async def count(self, **filters: Any) -> int:
@@ -154,23 +146,15 @@ class BaseRepository(Generic[Model]):
 
     async def search(self, query: str, fields: list[str], limit: int = 20) -> Sequence[Model]:
         """ILIKE поиск по нескольким полям (OR)."""
-        conditions = [
-            getattr(self.model, field).ilike(f"%{query}%")
-            for field in fields
-            if hasattr(self.model, field)
-        ]
+        conditions = [getattr(self.model, field).ilike(f"%{query}%") for field in fields if hasattr(self.model, field)]
         if not conditions:
             return []
-        result = await self._session.execute(
-            self._base_select().where(or_(*conditions)).limit(limit)
-        )
+        result = await self._session.execute(self._base_select().where(or_(*conditions)).limit(limit))
         return result.scalars().all()
 
     # ── Eager loading ─────────────────────────────────────────────────────────
 
-    async def get_with_relations(
-        self, id: uuid.UUID | int, *relations: InstrumentedAttribute
-    ) -> Model | None:
+    async def get_with_relations(self, id: uuid.UUID | int, *relations: InstrumentedAttribute) -> Model | None:
         """Загружает запись с указанными связями через selectinload."""
         stmt = self._base_select().where(self.model.id == id)
         for rel in relations:
@@ -190,16 +174,12 @@ class BaseRepository(Generic[Model]):
     # ── Update ────────────────────────────────────────────────────────────────
 
     async def update(self, id: uuid.UUID | int, **kwargs: Any) -> Model | None:
-        await self._session.execute(
-            update(self.model).where(self.model.id == id).values(**kwargs)
-        )
+        await self._session.execute(update(self.model).where(self.model.id == id).values(**kwargs))
         await self._session.flush()
         return await self.get_by_id(id)
 
     async def bulk_update(self, ids: list[uuid.UUID | int], **kwargs: Any) -> int:
-        result = await self._session.execute(
-            update(self.model).where(self.model.id.in_(ids)).values(**kwargs)
-        )
+        result = await self._session.execute(update(self.model).where(self.model.id.in_(ids)).values(**kwargs))
         await self._session.flush()
         return result.rowcount
 
@@ -213,15 +193,11 @@ class BaseRepository(Generic[Model]):
     # ── Delete ────────────────────────────────────────────────────────────────
 
     async def delete(self, id: uuid.UUID | int) -> bool:
-        result = await self._session.execute(
-            delete(self.model).where(self.model.id == id)
-        )
+        result = await self._session.execute(delete(self.model).where(self.model.id == id))
         return result.rowcount > 0
 
     async def bulk_delete(self, ids: list[uuid.UUID | int]) -> int:
-        result = await self._session.execute(
-            delete(self.model).where(self.model.id.in_(ids))
-        )
+        result = await self._session.execute(delete(self.model).where(self.model.id.in_(ids)))
         return result.rowcount
 
     async def soft_delete(self, id: uuid.UUID | int) -> bool:
@@ -229,9 +205,7 @@ class BaseRepository(Generic[Model]):
         if not hasattr(self.model, "is_deleted"):
             raise TypeError(f"{self.model.__name__} не поддерживает soft delete")
         result = await self._session.execute(
-            update(self.model)
-            .where(self.model.id == id)
-            .values(is_deleted=True, deleted_at=datetime.now(timezone.utc))
+            update(self.model).where(self.model.id == id).values(is_deleted=True, deleted_at=datetime.now(timezone.utc))
         )
         return result.rowcount > 0
 
@@ -240,12 +214,8 @@ class BaseRepository(Generic[Model]):
         if not hasattr(self.model, "is_deleted"):
             raise TypeError(f"{self.model.__name__} не поддерживает soft delete")
         await self._session.execute(
-            update(self.model)
-            .where(self.model.id == id)
-            .values(is_deleted=False, deleted_at=None)
+            update(self.model).where(self.model.id == id).values(is_deleted=False, deleted_at=None)
         )
         await self._session.flush()
-        result = await self._session.execute(
-            select(self.model).where(self.model.id == id)
-        )
+        result = await self._session.execute(select(self.model).where(self.model.id == id))
         return result.scalars().first()

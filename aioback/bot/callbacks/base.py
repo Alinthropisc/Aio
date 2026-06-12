@@ -8,6 +8,7 @@ class ActionCallback(CallbackData, prefix="action"):
     Пример:
         kb.button("Удалить", callback_data=ActionCallback(entity="user", id=str(user.id), action="delete").pack())
     """
+
     entity: str
     id: str
     action: str
@@ -21,6 +22,7 @@ class ConfirmCallback(CallbackData, prefix="confirm"):
         kb.button("✅ Да", callback_data=ConfirmCallback(action="delete_user", id=str(user.id), confirmed=True).pack())
         kb.button("❌ Нет", callback_data=ConfirmCallback(action="delete_user", id=str(user.id), confirmed=False).pack())
     """
+
     action: str
     id: str
     confirmed: bool

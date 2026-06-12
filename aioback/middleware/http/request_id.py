@@ -15,10 +15,7 @@ class RequestIdMiddleware(AbstractMiddleware):
             await self.app(scope, receive, send)
             return
 
-        request_id = (
-            dict(scope.get("headers", [])).get(b"x-request-id", b"").decode()
-            or str(uuid.uuid4())
-        )
+        request_id = dict(scope.get("headers", [])).get(b"x-request-id", b"").decode() or str(uuid.uuid4())
 
         async def send_with_id(message) -> None:
             if message["type"] == "http.response.start":

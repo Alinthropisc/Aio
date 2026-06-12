@@ -9,6 +9,7 @@ class SettingsProvider(Provider):
     @provide(scope=Scope.APP)
     def get_settings(self) -> Settings:
         from config import get_settings
+
         return get_settings()
 
     @provide(scope=Scope.APP)

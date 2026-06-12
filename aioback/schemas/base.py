@@ -25,11 +25,13 @@ class BaseSchema(BaseModel):
 
 class UUIDSchema(BaseSchema):
     """Схема с UUID полем."""
+
     id: uuid.UUID
 
 
 class TimestampSchema(BaseSchema):
     """Схема с временными метками."""
+
     created_at: datetime
     updated_at: datetime
 
@@ -40,4 +42,5 @@ class TimestampSchema(BaseSchema):
 
 class BaseEntitySchema(UUIDSchema, TimestampSchema):
     """Полная схема сущности: UUID + timestamps. Используй для ответов (response)."""
+
     pass

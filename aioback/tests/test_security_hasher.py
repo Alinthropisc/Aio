@@ -1,4 +1,5 @@
 """Tests for core/security/hasher.py — PasswordHasher."""
+
 import pytest
 
 from core.security.hasher import PasswordHasher

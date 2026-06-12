@@ -1,4 +1,5 @@
 """Tests for repositories/base.py — Page dataclass."""
+
 from repositories.base import Page
 
 

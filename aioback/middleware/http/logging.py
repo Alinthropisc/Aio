@@ -48,6 +48,4 @@ class LoggingMiddleware(AbstractMiddleware):
         finally:
             elapsed = (time.perf_counter() - start) * 1000
             level = "info" if status_code < 400 else "warning" if status_code < 500 else "error"
-            getattr(log, level)(
-                f"← {request.method} {request.url.path} | {status_code} | {elapsed:.1f}ms"
-            )
+            getattr(log, level)(f"← {request.method} {request.url.path} | {status_code} | {elapsed:.1f}ms")

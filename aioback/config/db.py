@@ -5,6 +5,7 @@ from core.config import BaseAppSettings
 
 class DatabaseSettings(BaseAppSettings):
     """Настройки основной БД (PostgreSQL по умолчанию)."""
+
     driver: str = Field(default="postgresql+psycopg", alias="DB_DRIVER")
     host: str = Field(default="localhost", alias="DB_HOST")
     port: int = Field(default=5432, alias="DB_PORT")
@@ -23,6 +24,7 @@ class DatabaseSettings(BaseAppSettings):
 
 class SecondaryDatabaseSettings(BaseAppSettings):
     """Настройки второй БД (MySQL по умолчанию). Включается через SECONDARY_DB_ENABLED=true."""
+
     enabled: bool = Field(default=False, alias="SECONDARY_DB_ENABLED")
     driver: str = Field(default="mysql+aiomysql", alias="SECONDARY_DB_DRIVER")
     host: str = Field(default="localhost", alias="SECONDARY_DB_HOST")

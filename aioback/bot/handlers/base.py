@@ -16,6 +16,7 @@ from loguru import logger
 
 # ── Builder паттерн для Inline клавиатур ──────────────────────────────────────
 
+
 class InlineKeyboard:
     """
     Fluent builder для InlineKeyboardMarkup.
@@ -119,6 +120,7 @@ class ReplyKeyboard:
 
 # ── Template Method паттерн — базовый хэндлер ────────────────────────────────
 
+
 class BaseBotHandler(ABC):
     """
     Базовый хэндлер Aiogram — аналог контроллера в веб мире.
@@ -176,9 +178,7 @@ class BaseBotHandler(ABC):
             self._log.error(f"Telegram API error for user {message.from_user.id}: {exc}")
             return False
 
-    async def reply_error(
-        self, message: Message, text: str = "Произошла ошибка. Попробуй позже."
-    ) -> None:
+    async def reply_error(self, message: Message, text: str = "Произошла ошибка. Попробуй позже.") -> None:
         self._log.warning(f"Error reply → user {message.from_user.id}")
         await message.answer(text)
 
@@ -204,9 +204,7 @@ class BaseBotHandler(ABC):
         await callback.message.edit_text(text, reply_markup=keyboard, **kwargs)
         await callback.answer()
 
-    async def safe_answer_callback(
-        self, callback: CallbackQuery, text: str = "", show_alert: bool = False
-    ) -> bool:
+    async def safe_answer_callback(self, callback: CallbackQuery, text: str = "", show_alert: bool = False) -> bool:
         try:
             await callback.answer(text=text, show_alert=show_alert)
             return True

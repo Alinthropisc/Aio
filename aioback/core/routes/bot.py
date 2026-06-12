@@ -59,7 +59,7 @@ class BotRouter:
         @contextmanager
         def _ctx():
             child = Router(name=name)
-            for mw in (middleware or []):
+            for mw in middleware or []:
                 child.message.middleware(mw)
                 child.callback_query.middleware(mw)
             self._children.append(child)
@@ -125,7 +125,9 @@ class BotRouter:
         router.callback_data(ProfileCallback, ProfileHandler().handle)
         router.callback_data(ProfileCallback, handler, action="delete")
         """
-        self._current().callback_query(callback_class.filter(**filters) if filters else callback_class.filter())(handler)
+        self._current().callback_query(callback_class.filter(**filters) if filters else callback_class.filter())(
+            handler
+        )
         return self
 
     # ── FSM States ────────────────────────────────────────────────────────────

@@ -82,13 +82,15 @@ class ApiRouter:
 
     def _add(self, path: str, handler: ControllerRouterHandler, **kwargs: Any) -> "ApiRouter":
         full_path = self._current_prefix() + ("/" + path.lstrip("/") if path not in ("", "/") else "")
-        self._routes.append({
-            "path": full_path or "/",
-            "handler": handler,
-            "middleware": self._current_middleware(),
-            "tags": self._current_tags(),
-            **kwargs,
-        })
+        self._routes.append(
+            {
+                "path": full_path or "/",
+                "handler": handler,
+                "middleware": self._current_middleware(),
+                "tags": self._current_tags(),
+                **kwargs,
+            }
+        )
         return self
 
     # ── HTTP методы ───────────────────────────────────────────────────────────
@@ -124,11 +126,11 @@ class ApiRouter:
             DELETE /users/{id}     → controller.destroy
         """
         actions = {
-            "index":   ("GET",    path),
-            "store":   ("POST",   path),
-            "show":    ("GET",    path + "/{id:uuid}"),
-            "update":  ("PUT",    path + "/{id:uuid}"),
-            "patch":   ("PATCH",  path + "/{id:uuid}"),
+            "index": ("GET", path),
+            "store": ("POST", path),
+            "show": ("GET", path + "/{id:uuid}"),
+            "update": ("PUT", path + "/{id:uuid}"),
+            "patch": ("PATCH", path + "/{id:uuid}"),
             "destroy": ("DELETE", path + "/{id:uuid}"),
         }
         allowed = only or list(actions.keys())

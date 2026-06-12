@@ -39,9 +39,7 @@ class ThrottleMiddleware(BaseMiddleware):
         if delta < self._rate_limit:
             self._log.warning(f"Throttled user {user.id} | wait {self._rate_limit - delta:.1f}s")
             if isinstance(event, Message):
-                await event.answer(
-                    f"Слишком быстро. Подожди {self._rate_limit - delta:.1f} сек."
-                )
+                await event.answer(f"Слишком быстро. Подожди {self._rate_limit - delta:.1f} сек.")
             return None
 
         self._last_call[user.id] = now

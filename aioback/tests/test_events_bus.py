@@ -1,4 +1,5 @@
 """Tests for core/events/bus.py — EventBus."""
+
 from dataclasses import dataclass
 
 import pytest
@@ -46,8 +47,11 @@ class TestEventBusListen:
     async def test_multiple_listeners(self, bus):
         calls = []
 
-        async def h1(e): calls.append("h1")
-        async def h2(e): calls.append("h2")
+        async def h1(e):
+            calls.append("h1")
+
+        async def h2(e):
+            calls.append("h2")
 
         bus.listen(UserCreated, h1)
         bus.listen(UserCreated, h2)
@@ -60,7 +64,8 @@ class TestEventBusListen:
     async def test_different_events_dont_cross(self, bus):
         received = []
 
-        async def handler(e): received.append(e)
+        async def handler(e):
+            received.append(e)
 
         bus.listen(UserCreated, handler)
         await bus.dispatch(OrderPlaced(order_id="x"))
@@ -83,8 +88,11 @@ class TestEventBusForget:
     async def test_forget_specific_listener(self, bus):
         calls = []
 
-        async def h1(e): calls.append("h1")
-        async def h2(e): calls.append("h2")
+        async def h1(e):
+            calls.append("h1")
+
+        async def h2(e):
+            calls.append("h2")
 
         bus.listen(UserCreated, h1)
         bus.listen(UserCreated, h2)
@@ -95,8 +103,11 @@ class TestEventBusForget:
     async def test_forget_all_listeners(self, bus):
         calls = []
 
-        async def h1(e): calls.append("h1")
-        async def h2(e): calls.append("h2")
+        async def h1(e):
+            calls.append("h1")
+
+        async def h2(e):
+            calls.append("h2")
 
         bus.listen(UserCreated, h1)
         bus.listen(UserCreated, h2)
@@ -109,8 +120,11 @@ class TestEventBusParallel:
     async def test_dispatch_parallel_calls_all(self, bus):
         results = []
 
-        async def h1(e): results.append(1)
-        async def h2(e): results.append(2)
+        async def h1(e):
+            results.append(1)
+
+        async def h2(e):
+            results.append(2)
 
         bus.listen(UserCreated, h1)
         bus.listen(UserCreated, h2)
@@ -125,8 +139,11 @@ class TestEventBusErrorHandling:
     async def test_failing_listener_does_not_stop_others(self, bus):
         results = []
 
-        async def bad(e): raise RuntimeError("boom")
-        async def good(e): results.append("ok")
+        async def bad(e):
+            raise RuntimeError("boom")
+
+        async def good(e):
+            results.append("ok")
 
         bus.listen(UserCreated, bad)
         bus.listen(UserCreated, good)

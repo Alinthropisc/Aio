@@ -11,6 +11,7 @@ class LoggingObserver(ModelObserver):
 
     def __init__(self, model_name: str = "") -> None:
         from core.logging import Log
+
         self._log = Log.get("Observer", model=model_name)
 
     async def created(self, instance) -> None:
