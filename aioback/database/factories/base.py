@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db import BaseModel
 
-
 Model = TypeVar("Model", bound=BaseModel)
 
 fake = Faker()

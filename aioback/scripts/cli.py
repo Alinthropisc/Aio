@@ -58,11 +58,11 @@ def db_seed(seeder: str = typer.Argument("all")) -> None:
     """Run database seeders."""
     async def _run():
         from config import get_settings
-        from core.db import create_engine, session_factory, get_session
+        from core.db import create_engine, get_session, session_factory
         settings = get_settings()
         engine = create_engine(url=settings.db.url)
         factory = session_factory(engine)
-        async with get_session(factory) as session:
+        async with get_session(factory):
             typer.echo(f"Running seeder: {seeder}")
             # from database.seeders.user import UserSeeder
             # await UserSeeder().run(session)
@@ -82,8 +82,8 @@ def run_worker(
     async def _run():
         from config import get_settings
         from core.cache import RedisClient
-        from core.queue import Queue, Worker
         from core.logging import Log
+        from core.queue import Queue, Worker
         settings = get_settings()
         Log.setup(debug=settings.app.is_debug, env=settings.app.env)
         redis = RedisClient(url=settings.redis.url, max_connections=10, decode_responses=False)

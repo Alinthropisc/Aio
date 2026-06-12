@@ -1,22 +1,18 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from aiogram import F, Router
-from aiogram.filters import StateFilter
+from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
-    InlineKeyboardButton,
     InlineKeyboardMarkup,
-    KeyboardButton,
     Message,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from loguru import logger
-
 
 # ── Builder паттерн для Inline клавиатур ──────────────────────────────────────
 

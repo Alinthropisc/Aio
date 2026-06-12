@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from litestar.exceptions import NotAuthorizedException
 
 from core.logging import Log
 
+if TYPE_CHECKING:
+    from core.auth.policy import BasePolicy
 
 GateCheck = Callable[..., bool | Awaitable[bool]]
 
@@ -33,17 +37,17 @@ class Gate:
 
     # ── Регистрация ───────────────────────────────────────────────────────────
 
-    def define(self, ability: str, check: GateCheck) -> "Gate":
+    def define(self, ability: str, check: GateCheck) -> Gate:
         """Определяет способность через callable."""
         self._abilities[ability] = check
         return self
 
-    def before(self, check: GateCheck) -> "Gate":
+    def before(self, check: GateCheck) -> Gate:
         """Хук — вызывается перед любой проверкой (напр. супер-админ)."""
         self._before.append(check)
         return self
 
-    def after(self, check: GateCheck) -> "Gate":
+    def after(self, check: GateCheck) -> Gate:
         """Хук — вызывается после проверки."""
         self._after.append(check)
         return self
@@ -98,7 +102,7 @@ class Gate:
                 return False
         return True
 
-    async def check_policy(self, policy: "BasePolicy", action: str, user: Any, *args: Any) -> bool:
+    async def check_policy(self, policy: BasePolicy, action: str, user: Any, *args: Any) -> bool:
         """Делегирует проверку в Policy класс."""
         import asyncio
         handler = getattr(policy, action, None)

@@ -1,10 +1,9 @@
-from abc import ABC
 from typing import Any
 
 from core.logging import Log
 
 
-class ModelObserver(ABC):
+class ModelObserver:
     """
     Базовый Observer для модели — паттерн Observer.
     Переопредели нужные хуки.

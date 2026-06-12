@@ -1,10 +1,9 @@
 import time
 import uuid
-from collections.abc import Awaitable, Callable
 
-from litestar import Request, Response
+from litestar import Request
 from litestar.middleware import AbstractMiddleware
-from litestar.types import ASGIApp, Receive, Scope, Send
+from litestar.types import Receive, Scope, Send
 
 from core.logging import Log
 

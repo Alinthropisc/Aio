@@ -60,7 +60,7 @@ class EventBus:
         if listener is None:
             self._listeners.pop(key, None)
         else:
-            self._listeners[key] = [l for l in self._listeners[key] if l is not listener]
+            self._listeners[key] = [fn for fn in self._listeners[key] if fn is not listener]
 
     async def dispatch(self, event: BaseEvent) -> None:
         """Публикует событие — вызывает всех подписчиков последовательно."""
@@ -89,7 +89,7 @@ class EventBus:
                 tasks.append(asyncio.create_task(result))
         if tasks:
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            for i, res in enumerate(results):
+            for _i, res in enumerate(results):
                 if isinstance(res, Exception):
                     self._log.error(f"Parallel listener failed on {event.name}: {res}")
 

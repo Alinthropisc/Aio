@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 from core.events.bus import BaseEvent
 from core.logging import Log

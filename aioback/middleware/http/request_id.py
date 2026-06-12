@@ -1,7 +1,7 @@
 import uuid
 
 from litestar.middleware import AbstractMiddleware
-from litestar.types import ASGIApp, Receive, Scope, Send
+from litestar.types import Receive, Scope, Send
 
 
 class RequestIdMiddleware(AbstractMiddleware):

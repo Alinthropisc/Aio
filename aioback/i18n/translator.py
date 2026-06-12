@@ -5,7 +5,6 @@ from typing import Any
 
 from core.logging import Log
 
-
 _locale_var: ContextVar[str] = ContextVar("locale", default="en")
 _LOCALES_DIR = Path("i18n/locales")
 

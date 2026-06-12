@@ -1,9 +1,8 @@
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from pydantic import Field
 
 from .base import BaseSchema
-
 
 T = TypeVar("T")
 

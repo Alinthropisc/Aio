@@ -1,3 +1,3 @@
-from .translator import Translator, t, set_locale, get_locale
+from .translator import Translator, get_locale, set_locale, t
 
-__all__ = ["Translator", "t", "set_locale", "get_locale"]
+__all__ = ["Translator", "get_locale", "set_locale", "t"]

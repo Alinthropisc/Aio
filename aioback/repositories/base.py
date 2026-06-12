@@ -4,12 +4,11 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Generic, TypeVar
 
-from sqlalchemy import Select, asc, desc, func, or_, select, update, delete
+from sqlalchemy import Select, asc, delete, desc, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
 
 from core.db import BaseModel
-
 
 Model = TypeVar("Model", bound=BaseModel)
 

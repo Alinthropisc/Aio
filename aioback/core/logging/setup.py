@@ -1,13 +1,11 @@
 import functools
 import sys
 import time
-import traceback
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from loguru import logger
-
 
 LOG_DIR = Path("storage/logs")
 

@@ -2,6 +2,7 @@ import asyncio
 import signal
 
 from core.logging import Log
+
 from .job import BaseJob, JobStatus
 from .queue import Queue
 
@@ -51,7 +52,7 @@ class Worker:
             try:
                 job = await self._queue.pop(queue, timeout=2)
                 if job:
-                    asyncio.create_task(self._process(job))
+                    asyncio.create_task(self._process(job))  # noqa: RUF006
             except Exception as exc:
                 self._log.error(f"Queue pop error on '{queue}': {exc}")
                 await asyncio.sleep(1)

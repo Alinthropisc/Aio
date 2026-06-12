@@ -151,7 +151,6 @@ class ApiRouter:
             grouped.setdefault(key, [])
             grouped[key].append(route["handler"])
 
-        routers = []
         seen_handlers: list[ControllerRouterHandler] = []
         for route in self._routes:
             if route["handler"] not in seen_handlers:

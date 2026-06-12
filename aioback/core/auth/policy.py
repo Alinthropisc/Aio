@@ -1,10 +1,9 @@
-from abc import ABC
 from typing import Any
 
 from core.logging import Log
 
 
-class BasePolicy(ABC):
+class BasePolicy:
     """
     Laravel-style Policy — авторизация для конкретной модели.
     Паттерн Strategy — каждый метод это стратегия доступа.

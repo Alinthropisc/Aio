@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from core.queue import BaseJob
 from core.logging import Log
+from core.queue import BaseJob
 
 
 @dataclass

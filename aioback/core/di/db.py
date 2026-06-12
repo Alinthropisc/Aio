@@ -1,12 +1,11 @@
 from collections.abc import AsyncIterator
 from typing import Annotated
 
-from dishka import Provider, Scope, provide, from_context
+from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from config import DatabaseSettings, SecondaryDatabaseSettings
 from core.db import create_engine, get_session, session_factory
-
 
 # Именованные типы чтобы Dishka различала два движка
 PrimaryEngine = Annotated[AsyncEngine, "primary"]

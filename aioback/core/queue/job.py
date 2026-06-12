@@ -51,14 +51,13 @@ class BaseJob(ABC):
     async def handle(self) -> None:
         """Основная логика задачи."""
 
-    async def failed(self, exc: Exception) -> None:
+    async def failed(self, exc: Exception) -> None:  # noqa: B027
         """Вызывается когда job провалился все попытки. Переопредели при необходимости."""
 
-    async def on_retry(self, attempt: int, exc: Exception) -> None:
+    async def on_retry(self, attempt: int, exc: Exception) -> None:  # noqa: B027
         """Вызывается перед каждой повторной попыткой."""
 
     def serialize(self) -> dict[str, Any]:
-        import json
         data = {
             "id": self.id,
             "class": f"{self.__class__.__module__}.{self.__class__.__name__}",

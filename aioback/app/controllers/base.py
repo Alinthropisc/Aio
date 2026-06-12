@@ -4,10 +4,6 @@ from typing import Any
 from litestar import Controller
 from litestar.exceptions import HTTPException, NotFoundException
 from litestar.status_codes import (
-    HTTP_200_OK,
-    HTTP_201_CREATED,
-    HTTP_204_NO_CONTENT,
-    HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
 )
 

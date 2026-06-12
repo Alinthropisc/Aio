@@ -8,8 +8,8 @@ __all__ = [
     "AppSettings",
     "BotSettings",
     "DatabaseSettings",
-    "SecondaryDatabaseSettings",
     "RedisSettings",
+    "SecondaryDatabaseSettings",
     "Settings",
     "get_settings",
 ]

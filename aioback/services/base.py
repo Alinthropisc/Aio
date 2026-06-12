@@ -6,7 +6,6 @@ from loguru import logger
 from core.db import BaseModel
 from repositories.base import BaseRepository, Page
 
-
 Model = TypeVar("Model", bound=BaseModel)
 Repo = TypeVar("Repo", bound=BaseRepository)
 

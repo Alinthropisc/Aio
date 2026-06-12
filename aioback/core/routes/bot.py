@@ -4,8 +4,6 @@ from typing import Any
 from aiogram import F, Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.state import State
-from aiogram.types import CallbackQuery, Message
-from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 
 
 @dataclass
