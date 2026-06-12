@@ -1,0 +1,45 @@
+name: CI — aiomini
+
+on:
+  push:
+    paths:
+      - 'aiomini/**'
+      - 'packages/**'
+      - '.github/workflows/aiomini.yml'
+  pull_request:
+    paths:
+      - 'aiomini/**'
+      - 'packages/**'
+      - '.github/workflows/aiomini.yml'
+
+jobs:
+  test:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter aiomini lint
+
+      - name: Test
+        run: pnpm --filter aiomini exec vitest run
+
+      - name: Build
+        run: pnpm --filter aiomini build

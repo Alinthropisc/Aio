@@ -1,0 +1,45 @@
+name: CI — aiofront
+
+on:
+  push:
+    paths:
+      - 'aiofront/**'
+      - 'packages/**'
+      - '.github/workflows/aiofront.yml'
+  pull_request:
+    paths:
+      - 'aiofront/**'
+      - 'packages/**'
+      - '.github/workflows/aiofront.yml'
+
+jobs:
+  test:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter aiofront lint
+
+      - name: Test
+        run: pnpm --filter aiofront test
+
+      - name: Build
+        run: pnpm --filter aiofront build

@@ -1,0 +1,129 @@
+name: CI — aioback
+
+on:
+  push:
+    paths:
+      - "aioback/**"
+      - ".github/workflows/aioback.yml"
+  pull_request:
+    paths:
+      - "aioback/**"
+      - ".github/workflows/aioback.yml"
+
+defaults:
+  run:
+    working-directory: aioback
+
+jobs:
+  test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: aioback_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      APP_ENV: testing
+      APP_DEBUG: "false"
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: aioback_test
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      BOT_TOKEN: "0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Ruff — lint
+        run: uv run ruff check .
+
+      - name: Ruff — format check
+        run: uv run ruff format --check .
+
+      - name: Mypy — type check
+        run: |
+          if grep -q '\[tool.mypy\]' pyproject.toml || [ -f mypy.ini ]; then
+            uv run mypy .
+          else
+            echo "mypy not configured, skipping"
+          fi
+
+      - name: Run migrations
+        run: uv run alembic upgrade head
+
+      - name: Pytest with coverage
+        run: |
+          uv run pytest \
+            --cov=. \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            -v
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: aioback/coverage.xml
+          retention-days: 7
+
+  docker-build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./aioback
+          file: ./aioback/Dockerfile
+          push: false
+          tags: aioback:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
