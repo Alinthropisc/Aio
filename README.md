@@ -2,10 +2,10 @@
 
 > Production-ready monorepo with a Python async backend, Next.js web frontend, Telegram Mini App, and Flutter mobile app — all sharing types and a common design system.
 
-[![CI — aioback](https://github.com/aio-dev/aio/actions/workflows/aioback.yml/badge.svg)](https://github.com/aio-dev/aio/actions/workflows/aioback.yml)
-[![CI — aiofront](https://github.com/aio-dev/aio/actions/workflows/aiofront.yml/badge.svg)](https://github.com/aio-dev/aio/actions/workflows/aiofront.yml)
-[![CI — aiomini](https://github.com/aio-dev/aio/actions/workflows/aiomini.yml/badge.svg)](https://github.com/aio-dev/aio/actions/workflows/aiomini.yml)
-[![CI — aiomobile](https://github.com/aio-dev/aio/actions/workflows/aiomobile.yml/badge.svg)](https://github.com/aio-dev/aio/actions/workflows/aiomobile.yml)
+[![CI — aioback](https://github.com/Alinthropisc/Aio/actions/workflows/aioback.yml/badge.svg)](https://github.com/Alinthropisc/Aio/actions/workflows/aioback.yml)
+[![CI — aiofront](https://github.com/Alinthropisc/Aio/actions/workflows/aiofront.yml/badge.svg)](https://github.com/Alinthropisc/Aio/actions/workflows/aiofront.yml)
+[![CI — aiomini](https://github.com/Alinthropisc/Aio/actions/workflows/aiomini.yml/badge.svg)](https://github.com/Alinthropisc/Aio/actions/workflows/aiomini.yml)
+[![CI — aiomobile](https://github.com/Alinthropisc/Aio/actions/workflows/aiomobile.yml/badge.svg)](https://github.com/Alinthropisc/Aio/actions/workflows/aiomobile.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
