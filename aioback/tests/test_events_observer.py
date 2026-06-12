@@ -1,4 +1,3 @@
-
 from core.events.observer import ModelObserver, ObservableMixin
 
 
