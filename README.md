@@ -144,7 +144,7 @@ Shared `tsconfig.json` base and ESLint flat config presets for all JS/TS package
 ### 1. Clone
 
 ```bash
-git clone https://github.com/your-org/aio.git
+git clone https://github.com/Alinthropisc/aio.git
 cd aio
 ```
 
